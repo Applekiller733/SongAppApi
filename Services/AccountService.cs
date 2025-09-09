@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace SongAppApi.Services
@@ -238,6 +239,10 @@ namespace SongAppApi.Services
         public int? GetProfilePictureId(int id)
         {
             var account = getAccount(id);
+            if ( account.ProfilePicture == null )
+                Console.WriteLine("ACCOUNT.PROFILEPICTURE IS NULL");
+            //Console.WriteLine(account.ProfilePicture);
+            //Console.WriteLine(account.ProfilePicture.Id);
             if (account.ProfilePicture == null) return null;
             return account.ProfilePicture.Id;
         }
@@ -289,7 +294,7 @@ namespace SongAppApi.Services
         {
             var account = getAccount(id);
 
-            Console.WriteLine(file.ToString());
+            //Console.WriteLine(file.ToString());
 
             // validate
             if (account.Email != model.Email && _context.Accounts.Any(x => x.Email == model.Email))
@@ -301,11 +306,12 @@ namespace SongAppApi.Services
 
             // copy model to account and save
             _mapper.Map(model, account);
-
+            //Console.WriteLine(file.ToString());
             if (file != null)
             {
                 account.ProfilePicture = file;
             }
+            Console.WriteLine(account.ProfilePicture.Id);
             
             account.Updated = DateTime.UtcNow;
             _context.Accounts.Update(account);
@@ -325,7 +331,9 @@ namespace SongAppApi.Services
 
         private Account getAccount(int id)
         {
-            var account = _context.Accounts.Find(id);
+            var account = _context.Accounts
+                .Include(a => a.ProfilePicture)
+                .FirstOrDefault(a => a.Id == id);
             if (account == null) throw new KeyNotFoundException("Account not found");
             return account;
         }

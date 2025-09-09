@@ -1,7 +1,10 @@
-﻿namespace SongAppApi.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SongAppApi.Entities
 {
     public class File
     {
+        [Key]
         public int Id { get; set; }
         public string FileName { get; set; }
 

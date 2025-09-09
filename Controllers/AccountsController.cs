@@ -175,6 +175,7 @@
 
             if (model.ProfilePicture != null)
             {
+                Console.WriteLine("MODEL.PROFILEPICTURE IS -NOT- NULL");
                 var fileid = _fileService.Create(model.ProfilePicture);
                 var file = _fileService.GetFileById(fileid);
                 var account = _accountService.Update(id, model, file);
@@ -182,6 +183,7 @@
             }
             else
             {
+                Console.WriteLine("MODEL.PROFILEPICTURE IS NULL");
                 var account = _accountService.Update(id, model);
                 return Ok(account);
             }

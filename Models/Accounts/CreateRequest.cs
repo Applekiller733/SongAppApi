@@ -26,5 +26,7 @@
         [Required]
         [Compare("Password")]
         public string ConfirmPassword { get; set; }
+
+        //include file profilepicture?
     }
 }

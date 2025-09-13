@@ -5,9 +5,7 @@ namespace SongAppApi.Entities
     public class Account
     {
         public int Id { get; set; }
-        //public string Title { get; set; }
         public string UserName { get; set; }
-        //public string LastName { get; set; }
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public bool AcceptTerms { get; set; }
@@ -21,6 +19,9 @@ namespace SongAppApi.Entities
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
         public File? ProfilePicture { get; set; }
+        public List<Song> CreatedSongs { get; set; }
+        public List<Song> LikedSongs { get; set; }
+        public List<Playlist> SavedPlaylists { get; set; }
         public List<RefreshToken> RefreshTokens { get; set; }
 
         public bool OwnsToken(string token)

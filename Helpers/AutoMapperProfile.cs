@@ -1,4 +1,8 @@
-﻿namespace SongAppApi.Helpers
+﻿using SongAppApi.Helpers.Resolvers;
+using SongAppApi.Models.Playlist;
+using SongAppApi.Models.Songs;
+
+namespace SongAppApi.Helpers
 {
     using AutoMapper;
     using Microsoft.AspNetCore.Identity.Data;
@@ -34,6 +38,19 @@
                         return true;
                     }
                 ));
+
+            CreateMap<CreateSongRequest, Song>();
+            CreateMap<Song, SongResponse>();
+
+            CreateMap<CreatePlaylistRequest, Playlist>()
+                .ForMember(dest => dest.Songs,
+                    opt 
+                        => opt.MapFrom<CreatePlaylistSongResolver>());
+            CreateMap<UpdatePlaylistRequest, Playlist>()
+                .ForMember(dest => dest.Songs,
+                    opt
+                        => opt.MapFrom<UpdatePlaylistSongResolver>());
+            CreateMap<Playlist, PlaylistResponse>();
         }
     }
 }

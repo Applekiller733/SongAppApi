@@ -1,0 +1,105 @@
+﻿using AutoMapper;
+using SongAppApi.Authorization;
+using SongAppApi.Entities;
+using SongAppApi.Helpers;
+using SongAppApi.Models.Playlist;
+using SongAppApi.Models.Songs;
+
+namespace SongAppApi.Services
+{
+    public interface IPlaylistService
+    {
+        PlaylistResponse Get(int id);
+        IEnumerable<PlaylistResponse> GetByAccount(int accountid);
+        IEnumerable<PlaylistResponse> GetAll();
+        PlaylistResponse Create(CreatePlaylistRequest request, Account account);
+        PlaylistResponse Update(int id, UpdatePlaylistRequest request);
+        void Delete(int id);
+    }
+    public class PlaylistService : IPlaylistService
+    {
+        private readonly DataContext _context;
+        private readonly IJwtUtils _jwtUtils;
+        private readonly IMapper _mapper;
+        private readonly AppSettings _settings;
+
+        public PlaylistService (DataContext context,
+            IJwtUtils jwtUtils, IMapper mapper,
+            AppSettings settings)
+        {
+            _context = context;
+            _jwtUtils = jwtUtils;
+            _mapper = mapper;
+            _settings = settings;
+        }
+
+        public PlaylistResponse Get(int id)
+        {
+            var playlist = getPlaylist(id);
+            return _mapper.Map<PlaylistResponse>(playlist);
+        }
+
+        public IEnumerable<PlaylistResponse> GetByAccount(int accountid)
+        {
+            var playlists = getAllByAccount(accountid);
+            return _mapper.Map<List<PlaylistResponse>>(playlists);
+        }
+
+        public IEnumerable<PlaylistResponse> GetAll()
+        {
+            var playlists = _context.Playlists;
+            return _mapper.Map<List<PlaylistResponse>>(playlists);
+        }
+
+        public PlaylistResponse Create(CreatePlaylistRequest request, Account account)
+        {
+            var playlist = _mapper.Map<Playlist>(request);
+            playlist.CreatedBy = account;
+            playlist.CreatedAt = DateTime.UtcNow;
+
+            _context.Playlists.Add(playlist);
+            _context.SaveChanges();
+
+            return _mapper.Map<PlaylistResponse>(playlist);
+        }
+
+        public PlaylistResponse Update(int id, UpdatePlaylistRequest request)
+        {
+            var playlist = getPlaylist(id);
+
+            _mapper.Map(request, playlist);
+            playlist.UpdatedAt = DateTime.UtcNow;
+            _context.Playlists.Update(playlist);
+            _context.SaveChanges();
+
+            return _mapper.Map<PlaylistResponse>(playlist);
+        }
+
+        public void Delete(int id)
+        {
+            var playlist = getPlaylist(id);
+            _context.Playlists.Remove(playlist);
+            _context.SaveChanges();
+        }
+
+        //helper
+
+        public Playlist getPlaylist(int id)
+        {
+            var playlist = _context.Playlists.FirstOrDefault(p => p.Id == id);
+            if (playlist == null)
+                throw new KeyNotFoundException("Playlist could not be found");
+            return playlist;
+        }
+
+        public List<Playlist> getAllByAccount(int accountid)
+        {
+            var playlists = _context.Playlists
+                .Where(p => p.CreatedBy.Id == accountid)
+                .ToList();
+            if (playlists == null)
+                throw new KeyNotFoundException("Playlists for account could not be found");
+            return playlists;
+        }
+    }
+}

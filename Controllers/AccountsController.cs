@@ -130,11 +130,6 @@
         public ActionResult<AccountProfilePictureResponse> GetProfilePictureById(int id)
         {
             Console.WriteLine(id);
-            //todo fix - currently getting null fileid from the
-            // getprofilepictureid func
-            // tried using automapper to map from profilepicture inside acc
-            // to accountprofilepictureresp, aslo returned null
-            // fml
 
             var fileid = _accountService.GetProfilePictureId(id);
             if (fileid == null)
@@ -165,6 +160,8 @@
         [HttpPut("{id:int}")]
         public ActionResult<AccountResponse> Update(int id, [FromForm] UpdateRequest model)
         {
+            //todo ensure new GUID name is created for each file
+
             // users can update their own account and admins can update any account
             if (id != Account.Id && Account.Role != Role.Admin)
                 return Unauthorized(new { message = "Unauthorized" });
@@ -176,7 +173,13 @@
             if (model.ProfilePicture != null)
             {
                 Console.WriteLine("MODEL.PROFILEPICTURE IS -NOT- NULL");
-                var fileid = _fileService.Create(model.ProfilePicture);
+                var filenameGUID = Guid.NewGuid().ToString();
+                model.ProfilePicture.FileName = filenameGUID;
+                var subfolderpath = Path.Combine("ProfilePictures",
+                    Account.Id.ToString());
+                //_fileService.CreateSubFolders(subfolderpath);
+                //model.ProfilePicture.FileName = newfilename;
+                var fileid = _fileService.Create(model.ProfilePicture, subfolderpath);
                 var file = _fileService.GetFileById(fileid);
                 var account = _accountService.Update(id, model, file);
                 return Ok(account);
@@ -187,7 +190,7 @@
                 var account = _accountService.Update(id, model);
                 return Ok(account);
             }
-            //todo probably refactor
+            //todo maybe refactor
 
             //return Ok(account);
         }

@@ -239,8 +239,8 @@ namespace SongAppApi.Services
         public int? GetProfilePictureId(int id)
         {
             var account = getAccount(id);
-            if ( account.ProfilePicture == null )
-                Console.WriteLine("ACCOUNT.PROFILEPICTURE IS NULL");
+            //if ( account.ProfilePicture == null )
+            //    Console.WriteLine("ACCOUNT.PROFILEPICTURE IS NULL");
             //Console.WriteLine(account.ProfilePicture);
             //Console.WriteLine(account.ProfilePicture.Id);
             if (account.ProfilePicture == null) return null;

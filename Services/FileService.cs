@@ -10,7 +10,9 @@ namespace SongAppApi.Services
     public interface IFileService
     {
         int Create(FileModel file);
+        int Create(FileModel file, string subfolderpath);
         File GetFileById(int id);
+        bool VerifyExistingDirectory(string path);
     }
     public class FileService : IFileService
     {
@@ -56,6 +58,34 @@ namespace SongAppApi.Services
             return fileEF.Id;
         }
 
+        public int Create(FileModel file, string subfolderpath)
+        {
+            if (file == null)
+                throw new ArgumentNullException(nameof(file));
+
+            string path = Path.Combine(Directory.GetCurrentDirectory(),
+                "Resources", subfolderpath, file.FileName);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+
+            using (Stream stream = new FileStream(path, FileMode.Create))
+            {
+                file.FormFile.CopyTo(stream);
+            }
+
+            File fileEF = new File
+            {
+                FileName = file.FileName,
+                Extension = file.Extension,
+                FilePath = path
+            };
+
+            _context.Files.Add(fileEF);
+            _context.SaveChanges();
+
+            return fileEF.Id;
+        }
+
 
         public File GetFileById(int id)
         {
@@ -65,6 +95,21 @@ namespace SongAppApi.Services
                 throw new KeyNotFoundException("Could not find file");
             }
             return file;
+        }
+
+        public bool VerifyExistingDirectory(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public void createSubFolders(string path)
+        {
+            Directory.CreateDirectory(path);
         }
     }
 }

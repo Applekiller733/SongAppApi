@@ -8,8 +8,6 @@ namespace SongAppApi.Models.Songs
         public string Name { get; set; }
         [Required]
         public string Artist { get; set; }
-        [Required]
-        public int Upvotes { get; set; }
         public string? ImageUrl { get; set; }
         public string? VideoUrl { get; set; }
         public string? SoundUrl { get; set; }

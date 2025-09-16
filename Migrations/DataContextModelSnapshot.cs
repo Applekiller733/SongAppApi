@@ -22,6 +22,51 @@ namespace SongAppApi.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("AccountPlaylist", b =>
+                {
+                    b.Property<int>("SavedByAccountsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SavedPlaylistsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SavedByAccountsId", "SavedPlaylistsId");
+
+                    b.HasIndex("SavedPlaylistsId");
+
+                    b.ToTable("accountplaylist", (string)null);
+                });
+
+            modelBuilder.Entity("AccountSong", b =>
+                {
+                    b.Property<int>("LikedByAccountsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LikedSongsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("LikedByAccountsId", "LikedSongsId");
+
+                    b.HasIndex("LikedSongsId");
+
+                    b.ToTable("AccountSongLikes", (string)null);
+                });
+
+            modelBuilder.Entity("PlaylistSong", b =>
+                {
+                    b.Property<int>("SavedInPlaylistsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SongsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SavedInPlaylistsId", "SongsId");
+
+                    b.HasIndex("SongsId");
+
+                    b.ToTable("PlaylistSong");
+                });
+
             modelBuilder.Entity("SongAppApi.Entities.Account", b =>
                 {
                     b.Property<int>("Id")
@@ -104,6 +149,140 @@ namespace SongAppApi.Migrations
                     b.ToTable("Files");
                 });
 
+            modelBuilder.Entity("SongAppApi.Entities.Playlist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CreatedById")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("ImageId");
+
+                    b.ToTable("Playlists");
+                });
+
+            modelBuilder.Entity("SongAppApi.Entities.Song", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Artist")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CreatedById")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("SoundId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SoundUrl")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Upvotes")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VideoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VideoUrl")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("ImageId");
+
+                    b.HasIndex("SoundId");
+
+                    b.HasIndex("VideoId");
+
+                    b.ToTable("Songs");
+                });
+
+            modelBuilder.Entity("AccountPlaylist", b =>
+                {
+                    b.HasOne("SongAppApi.Entities.Account", null)
+                        .WithMany()
+                        .HasForeignKey("SavedByAccountsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SongAppApi.Entities.Playlist", null)
+                        .WithMany()
+                        .HasForeignKey("SavedPlaylistsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AccountSong", b =>
+                {
+                    b.HasOne("SongAppApi.Entities.Account", null)
+                        .WithMany()
+                        .HasForeignKey("LikedByAccountsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SongAppApi.Entities.Song", null)
+                        .WithMany()
+                        .HasForeignKey("LikedSongsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlaylistSong", b =>
+                {
+                    b.HasOne("SongAppApi.Entities.Playlist", null)
+                        .WithMany()
+                        .HasForeignKey("SavedInPlaylistsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SongAppApi.Entities.Song", null)
+                        .WithMany()
+                        .HasForeignKey("SongsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SongAppApi.Entities.Account", b =>
                 {
                     b.HasOne("SongAppApi.Entities.File", "ProfilePicture")
@@ -162,6 +341,57 @@ namespace SongAppApi.Migrations
                     b.Navigation("ProfilePicture");
 
                     b.Navigation("RefreshTokens");
+                });
+
+            modelBuilder.Entity("SongAppApi.Entities.Playlist", b =>
+                {
+                    b.HasOne("SongAppApi.Entities.Account", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SongAppApi.Entities.File", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Image");
+                });
+
+            modelBuilder.Entity("SongAppApi.Entities.Song", b =>
+                {
+                    b.HasOne("SongAppApi.Entities.Account", "CreatedBy")
+                        .WithMany("CreatedSongs")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SongAppApi.Entities.File", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId");
+
+                    b.HasOne("SongAppApi.Entities.File", "Sound")
+                        .WithMany()
+                        .HasForeignKey("SoundId");
+
+                    b.HasOne("SongAppApi.Entities.File", "Video")
+                        .WithMany()
+                        .HasForeignKey("VideoId");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Image");
+
+                    b.Navigation("Sound");
+
+                    b.Navigation("Video");
+                });
+
+            modelBuilder.Entity("SongAppApi.Entities.Account", b =>
+                {
+                    b.Navigation("CreatedSongs");
                 });
 #pragma warning restore 612, 618
         }

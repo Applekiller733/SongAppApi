@@ -16,7 +16,7 @@ namespace SongAppApi.Services
     }
     public class FileService : IFileService
     {
-        //todo add DI in Programcs, finish implementation
+        
         private readonly DataContext _context;
         private readonly IJwtUtils _jwtUtils;
         private readonly IMapper _mapper;

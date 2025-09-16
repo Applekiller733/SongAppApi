@@ -157,14 +157,18 @@
             return Ok(account);
         }
 
-        [HttpPut("{id:int}")]
-        public ActionResult<AccountResponse> Update(int id, [FromForm] UpdateRequest model)
+        [HttpPut]
+        public ActionResult<AccountResponse> Update([FromForm] UpdateRequest model)
         {
             //todo ensure new GUID name is created for each file
-
             // users can update their own account and admins can update any account
-            if (id != Account.Id && Account.Role != Role.Admin)
+
+            //todo ensure the function works with the changed UpdateRequest
+            if (model.Id != Account.Id && Account.Role != Role.Admin)
                 return Unauthorized(new { message = "Unauthorized" });
+
+            //if (model.Id == null)
+            //    return BadRequest(new { message = "Id cannot be null"});
 
             // only admins can update role
             if (Account.Role != Role.Admin)
@@ -181,13 +185,13 @@
                 //model.ProfilePicture.FileName = newfilename;
                 var fileid = _fileService.Create(model.ProfilePicture, subfolderpath);
                 var file = _fileService.GetFileById(fileid);
-                var account = _accountService.Update(id, model, file);
+                var account = _accountService.Update(model.Id, model, file);
                 return Ok(account);
             }
             else
             {
                 Console.WriteLine("MODEL.PROFILEPICTURE IS NULL");
-                var account = _accountService.Update(id, model);
+                var account = _accountService.Update(model.Id, model);
                 return Ok(account);
             }
             //todo maybe refactor

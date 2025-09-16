@@ -18,8 +18,8 @@ namespace SongAppApi.Entities
         public File? Sound { get; set; }
         public int CreatedById { get; set; }
         public Account CreatedBy { get; set; }
-        public List<Playlist> SavedInPlaylists { get; set; }
-        public List<Account> LikedByAccounts { get; set; }
+        public List<Playlist> SavedInPlaylists { get; set; } = new List<Playlist>();
+        public List<Account> LikedByAccounts { get; set; } = new List<Account>();
         //maybe also add image as a locally saved file?
         //public File? Image { get; set; }
     }

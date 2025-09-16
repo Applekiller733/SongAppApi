@@ -31,10 +31,17 @@ namespace SongAppApi.Controllers
             return Ok(response);
         }
 
-        [HttpGet("{accountid:int}")]
-        public ActionResult<IEnumerable<PlaylistResponse>> GetAllByAccount(int accountid)
+        [HttpGet("made-by/{accountid:int}")]
+        public ActionResult<IEnumerable<PlaylistResponse>> GetAllCreatedByAccount(int accountid)
         {
-            var response = _service.GetByAccount(accountid);
+            var response = _service.GetCreatedByAccount(accountid);
+            return Ok(response);
+        }
+
+        [HttpGet("saved-by/{accountid:int}")]
+        public ActionResult<IEnumerable<PlaylistResponse>> GetAllSavedByAccount(int accountid)
+        {
+            var response = _service.GetSavedByAccount(accountid);
             return Ok(response);
         }
 
@@ -46,25 +53,26 @@ namespace SongAppApi.Controllers
             return Ok(response);
         }
 
-        [HttpPut("{id:int}")]
-        public ActionResult<PlaylistResponse> UpdatePlaylist(int id, UpdatePlaylistRequest request)
+        //todo remove the id from the URL and instead add to request?
+        [HttpPut]
+        public ActionResult<PlaylistResponse> UpdatePlaylist(UpdatePlaylistRequest request)
         {
-            var playlist = _service.Get(id);
+            var playlist = _service.Get(request.Id);
             if (playlist.CreatedBy.Id != Account.Id || Account.Role != Role.Admin)
                 return Unauthorized(new { message = "Unauthorized" });
 
-            var response = _service.Update(id, request);
+            var response = _service.Update(request.Id, request);
             return Ok(response);
         }
 
-        [HttpDelete("{id:int}")]
-        public ActionResult Delete(int id)
+        [HttpDelete]
+        public ActionResult Delete(DeletePlaylistRequest request)
         {
-            var playlist = _service.Get(id);
+            var playlist = _service.Get(request.Id);
             if (playlist.CreatedBy.Id != Account.Id || Account.Role != Role.Admin)
                 return Unauthorized(new { message = "Unauthorized" });
             
-            _service.Delete(id);
+            _service.Delete(request.Id);
             return Ok(new { message = "Playlist successfully deleted" });
         }
     }

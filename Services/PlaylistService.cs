@@ -10,7 +10,8 @@ namespace SongAppApi.Services
     public interface IPlaylistService
     {
         PlaylistResponse Get(int id);
-        IEnumerable<PlaylistResponse> GetByAccount(int accountid);
+        IEnumerable<PlaylistResponse> GetCreatedByAccount(int accountid);
+        IEnumerable<PlaylistResponse> GetSavedByAccount(int accountid);
         IEnumerable<PlaylistResponse> GetAll();
         PlaylistResponse Create(CreatePlaylistRequest request, Account account);
         PlaylistResponse Update(int id, UpdatePlaylistRequest request);
@@ -21,16 +22,13 @@ namespace SongAppApi.Services
         private readonly DataContext _context;
         private readonly IJwtUtils _jwtUtils;
         private readonly IMapper _mapper;
-        private readonly AppSettings _settings;
 
         public PlaylistService (DataContext context,
-            IJwtUtils jwtUtils, IMapper mapper,
-            AppSettings settings)
+            IJwtUtils jwtUtils, IMapper mapper)
         {
             _context = context;
             _jwtUtils = jwtUtils;
             _mapper = mapper;
-            _settings = settings;
         }
 
         public PlaylistResponse Get(int id)
@@ -39,9 +37,15 @@ namespace SongAppApi.Services
             return _mapper.Map<PlaylistResponse>(playlist);
         }
 
-        public IEnumerable<PlaylistResponse> GetByAccount(int accountid)
+        public IEnumerable<PlaylistResponse> GetCreatedByAccount(int accountid)
         {
             var playlists = getAllByAccount(accountid);
+            return _mapper.Map<List<PlaylistResponse>>(playlists);
+        }
+
+        public IEnumerable<PlaylistResponse> GetSavedByAccount(int accountid)
+        {
+            var playlists = getAllSavedByAccount(accountid);
             return _mapper.Map<List<PlaylistResponse>>(playlists);
         }
 
@@ -56,6 +60,7 @@ namespace SongAppApi.Services
             var playlist = _mapper.Map<Playlist>(request);
             playlist.CreatedBy = account;
             playlist.CreatedAt = DateTime.UtcNow;
+            playlist.SavedByAccounts.Add(account);
 
             _context.Playlists.Add(playlist);
             _context.SaveChanges();
@@ -98,7 +103,17 @@ namespace SongAppApi.Services
                 .Where(p => p.CreatedBy.Id == accountid)
                 .ToList();
             if (playlists == null)
-                throw new KeyNotFoundException("Playlists for account could not be found");
+                throw new KeyNotFoundException("Playlists created by account could not be found");
+            return playlists;
+        }
+
+        public List<Playlist> getAllSavedByAccount(int accountid)
+        {
+            var playlists = _context.Playlists
+                .Where(p => p.SavedByAccounts.Any(a => a.Id == accountid))
+                .ToList();
+            if (playlists == null)
+                throw new KeyNotFoundException("Playlists saved by account could not be found");
             return playlists;
         }
     }

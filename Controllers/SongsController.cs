@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SongAppApi.Authorization;
 using SongAppApi.Entities;
 using SongAppApi.Models.Songs;
 using SongAppApi.Services;
@@ -39,28 +39,30 @@ namespace SongAppApi.Controllers
         [HttpPost("create-song")]
         public ActionResult<SongResponse> Create(CreateSongRequest request)
         {
-            //todo test if it works
+            //todo test if it works and add new role for user uploader?
+            if (Account.Role != Role.Admin)
+                return Unauthorized(new {message = "Unauthorized"});
             var response = _service.Create(request, Account);
             return Ok(response);
         }
 
-        [HttpDelete("{id:int}")]
-        public ActionResult Delete(int id)
+        [HttpDelete]
+        public ActionResult Delete(DeleteSongRequest request)
         {
-            var song = _service.Get(id);
+            var song = _service.Get(request.Id);
 
             //todo check if createdby is properly fetched ie not always null
             if (song.CreatedBy.Id != Account.Id || Account.Role != Role.Admin)
                 return Unauthorized(new { message = "Unauthorized" });
 
-            _service.Delete(id);
+            _service.Delete(request.Id);
             return Ok(new { message = "Song deleted successfully" });
         }
 
-        [HttpPost("fliplike/{id:int}")]
-        public ActionResult FlipLike(int id)
+        [HttpPost("flip-like")]
+        public ActionResult FlipLike(FlipLikeRequest request)
         {
-            _service.FlipLike(id, Account);
+            _service.FlipLike(request.Id, Account);
             return Ok(new { message = "Song successfully liked/unliked" });
         }
     }

@@ -5,6 +5,7 @@ using SongAppApi.Services;
 
 namespace SongAppApi.Controllers
 {
+    //todo add [Authorization.Authorize]
     [ApiController]
     [Route("[controller]")]
     public class FilesController : BaseController

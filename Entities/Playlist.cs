@@ -12,7 +12,7 @@ namespace SongAppApi.Entities
         public int CreatedById { get; set; }
         public Account CreatedBy { get; set; }
         public File? Image { get; set; }
-        public List<Song> Songs { get; set; }
-        public List<Account> SavedByAccounts { get; set; }
+        public List<Song> Songs { get; set; } = new List<Song>();
+        public List<Account> SavedByAccounts { get; set; } = new List<Account>();
     }
 }

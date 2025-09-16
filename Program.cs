@@ -30,6 +30,8 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddScoped<IAccountService, AccountService>();
     services.AddScoped<IEmailService, EmailService>();
     services.AddScoped<IFileService, FileService>();
+    services.AddScoped<ISongService, SongService>();
+    services.AddScoped<IPlaylistService, PlaylistService>();
 }
 
 var app = builder.Build();

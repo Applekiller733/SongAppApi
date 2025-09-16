@@ -24,16 +24,13 @@ namespace SongAppApi.Services
         private readonly DataContext _context;
         private readonly IJwtUtils _jwtUtils;
         private readonly IMapper _mapper;
-        private readonly AppSettings _settings;
 
         public SongService(DataContext context,
-            IJwtUtils jwtUtils, IMapper mapper,
-            AppSettings settings)
+            IJwtUtils jwtUtils, IMapper mapper)
         {
             _context = context;
             _jwtUtils = jwtUtils;
             _mapper = mapper;
-            _settings = settings;
         }
 
         public SongResponse Get(int id)
@@ -53,6 +50,7 @@ namespace SongAppApi.Services
             var song = _mapper.Map<Song>(request);
             song.CreatedBy = creator;
             song.CreatedAt = DateTime.UtcNow;
+            song.Upvotes = 0;
 
             _context.Songs.Add(song);
             _context.SaveChanges();
